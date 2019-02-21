@@ -6,6 +6,7 @@ import subprocess
 import re
 import time
 import multiprocessing
+import pyudev
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--number", type=int, help="Number of files to create")
@@ -16,12 +17,14 @@ parser.add_argument("-l", dest="list",  action='store_true', help="List availabl
 # Detect local mounted disk
 def local_disk_mounts(min_free):
     local_disk_mounts = []
+    context = pyudev.Context()
+    dev_nodes = []
+    for device in context.list_devices(subsystem='block', DEVTYPE='partition'):
+            dev_nodes.append(device.device_node)
     partitions = psutil.disk_partitions(all=False)
-    pattern = re.compile(".*/dev/(mapper|[h,s]d[a-z]).*")
-    for p in partitions:
-        # psutil.disk_usage returns values in bytes
-        if pattern.match(str(p)) and psutil.disk_usage(p.mountpoint).free > (min_free * 1024 * 1024):
-            local_disk_mounts.append(p.mountpoint)
+    for partition in partitions:
+        if partition.device in dev_nodes and  psutil.disk_usage(partition.mountpoint).free > (min_free * 1024 * 1024):
+            local_disk_mounts.append(partition.mountpoint)
     if local_disk_mounts:
         return local_disk_mounts
     else:
