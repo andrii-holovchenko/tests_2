@@ -9,13 +9,6 @@ import socket
 parser = argparse.ArgumentParser(description='Running ssh commands on multiple hosts')
 parser.add_argument("command", type=str, help='Command to run')
 parser.add_argument('-l','--list', nargs='+', help='<Required> Space separated hosts', required=True)
-args = parser.parse_args()
-
-# Command to run
-com = args.command
-
-# Hosts to run the commands on
-hosts = args.list
 
 def run_ssh_command(host, command):
     ssh = paramiko.SSHClient()
@@ -44,6 +37,14 @@ def run_ssh_command(host, command):
         print e
 
 if __name__ == '__main__':
+    args = parser.parse_args()
+
+    # Command to run
+    com = args.command
+
+    # Hosts to run the commands on
+    hosts = args.list
+
     try:
         p = multiprocessing.Pool(4)
         [p.apply(run_ssh_command, args=(hosts[x],com,)) for x in range(len(hosts))]
