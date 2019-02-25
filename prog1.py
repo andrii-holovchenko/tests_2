@@ -49,7 +49,6 @@ if __name__ == '__main__':
     file_size = args.size
     min_free = args.min_free
     
-    start = time.time()
     if args.list and min_free:
         list_disks()
         exit()
@@ -71,6 +70,7 @@ if __name__ == '__main__':
             except KeyboardInterrupt:
                 print('\nInterrupted. Exit the program.')
                 exit()
+            start = time.time()
             processes = []
             for i in range(file_num):
                 p = multiprocessing.Process(target=run_dd, args=(i, file_size, mount_point,))
