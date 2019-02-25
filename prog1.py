@@ -6,6 +6,7 @@ import subprocess
 import re
 import time
 import multiprocessing
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--number", type=int, help="Number of files to create")
@@ -30,7 +31,8 @@ def local_disk_mounts(min_free):
 
 def run_dd(num, size, mount):
     try:
-        subprocess.check_output(['dd', 'if=/dev/zero', 'of=%sfile%s.txt' % (mount, num), 'status=none', 'count=1', 'bs=%s' % (size * 1024 * 1024)])
+        dest = os.path.join(mount, 'file%s.txt') % (num)
+        subprocess.check_output(['dd', 'if=/dev/zero', 'of=%s' % (dest), 'status=none', 'count=1', 'bs=%s' % (size * 1024 * 1024)])
         print('File \'%sfile%s.txt\' created succefully! Size: %s MB' % (mount, num, size))
     except subprocess.CalledProcessError as e:
         print "Error code:", e.returncode, e.output
